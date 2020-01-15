@@ -22,24 +22,23 @@ public class Server {
 		System.out.println("Entrez l'adresse IP du poste:");
 		String serverAddressIn = keyboard.next();
 		String[] tempAddr = serverAddressIn.split("\\.");
-		
+		// Validate l'adresse
 		while (!Validators.validateIPAddress(tempAddr)) {
 			System.out.println("Entrez l'adresse IP du poste:");
 			serverAddressIn = keyboard.next();
 			tempAddr = serverAddressIn.split("\\.");	
 		}
-		// L'adresse est valide
 		serverAddress = serverAddressIn;
 		
 		// Entrez le numero de port
 		System.out.println("Entrez le numero du port (entre 5000 et 5050):");
 		int serverPortIn = keyboard.nextInt();
 		
+		// Validate le numero de port
 		while (!Validators.validatePortNumber(serverPortIn)) {
 			System.out.println("Entrez le numero du port (entre 5000 et 5050):");
 			serverPortIn = keyboard.nextInt();
 		}
-		// Le numero de port est valide
 		serverPort = serverPortIn;
 		
 		keyboard.close();
