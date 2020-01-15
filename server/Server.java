@@ -42,16 +42,6 @@ public class Server {
 		// Le numero de port est valide
 		serverPort = serverPortIn;
 		
-		System.out.println("Entrez votre nom d'utilisateur:");
-		String usernameIn = keyboard.next();
-		if (Validators.validateUsername(usernameIn)) {
-			System.out.println("Rebienvenue %s! Entrez votre mot de passe:" + usernameIn);
-			if (Validators.validatePassword(usernameIn, keyboard.next())) {
-				System.out.println("Bienvenue dans PolySobel! Veuillez entrer le nom de l'image que vous voulez convertir:");
-				// Sobel.process(keyboard.next());
-			}
-		}
-		
 		keyboard.close();
 
 		listener = new ServerSocket();
@@ -84,7 +74,7 @@ public class Server {
 		{
 			this.socket = socket;
 			this.clientNumber = clientNumber;
-			System.out.println("New connection with client#" + clientNumber + " at " + socket);
+			System.out.println("Nouvelle connexion avec le client #" + clientNumber + " sur " + socket + ".");
 		}
 		
 		public void run()
@@ -93,10 +83,10 @@ public class Server {
 			{
 				DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 				
-				out.writeUTF("Hello from server - you are client#" + clientNumber);
+				out.writeUTF("Bonjour du serveur - vous etes le client #" + clientNumber + "!");
 			} catch (IOException e)
 			{
-				System.out.println("Error handling client# " + clientNumber + ": " + e);
+				System.out.println("Erreur dans le traitement demande par le client # " + clientNumber + ": " + e);
 			}
 			finally
 			{
@@ -106,9 +96,9 @@ public class Server {
 				}
 				catch (IOException e)
 				{
-					System.out.println("Couldn't close a socket, what's going on?");
+					System.out.println("Impossible de fermer le socket.");
 				}
-				System.out.println("Connection with client# " + clientNumber + " closed");
+				System.out.println("Connexion avec le client # " + clientNumber + " fermee.");
 			}
 		}
 	}

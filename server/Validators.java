@@ -5,12 +5,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.HashMap;
 
 public class Validators {
-	static HashMap<String, String> userDataMap = new HashMap<String, String>();
 	static String path = "credentials.csv";
 	static String currentUsername = "";
+	static String currentPassword = "";
 
 	// Valider l'adresse (chiffres et nombre de points)
 	public static boolean validateIPAddress(String[] input) throws Exception {
@@ -47,12 +46,12 @@ public class Validators {
 		// Le fichier existe
 		if (file.exists()) {
 			BufferedReader reader = new BufferedReader(new FileReader(path));
-			userDataMap.clear();
 			String line = "";
 			String[] data;
 			while ((line = reader.readLine()) != null) {
 				data = line.split(",");
-				userDataMap.put(data[0], data[1]);
+				currentUsername = data[0];
+				currentPassword = data[1];
 			}
 			reader.close();
 		} else {
@@ -65,28 +64,31 @@ public class Validators {
 		FileWriter writer = new FileWriter(path);
 		// Si le fichier n'existe pas
 		if (!file.exists()) {
-			userDataMap.forEach((username, password)->{
 				try {
-					writer.append(username);
+					writer.append("testUN");
 					writer.append(",");
-					writer.append(password);
+					writer.append("testPW");
 					writer.append("\n");
 				} catch (IOException e) {
 					System.out.println("Erreur dans l'ecriture sur le fichier.");
 					e.printStackTrace();
 				}
-			});
-			writer.flush();
-			writer.close();
+			}
+		writer.flush();
+		writer.close();
+	}
+	
+	// A corriger
+	public static boolean validateUsername(String input) throws Exception {
+		if (currentUsername == input) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 	
-	public static boolean validateUsername(String input) throws Exception {
-		return userDataMap.containsKey(input);
-	}
-	
 	public static boolean validatePassword(String username, String input) throws Exception {
-		if (userDataMap.get(username) == input) {
+		if (currentPassword == input) {
 			return true;
 		} else {
 			return false;
