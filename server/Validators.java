@@ -59,32 +59,26 @@ public class Validators {
 		}
 	}
 	
-	public static void manageFile() throws Exception {
-		File file = new File(path);
-		FileWriter writer = new FileWriter(path);
-		// Si le fichier n'existe pas
-		if (!file.exists()) {
-				try {
-					writer.append("testUN");
-					writer.append(",");
-					writer.append("testPW");
-					writer.append("\n");
-				} catch (IOException e) {
-					System.out.println("Erreur dans l'ecriture sur le fichier.");
-					e.printStackTrace();
-				}
-			}
-		writer.flush();
-		writer.close();
-	}
-	
-	// A corriger
 	public static boolean validateUsername(String input) throws Exception {
-		if (currentUsername == input) {
-			return false;
+		File file = new File(path);
+		// Le fichier existe
+		if (file.exists()) {
+			BufferedReader reader = new BufferedReader(new FileReader(path));
+			String line = "";
+			String[] data;
+			while ((line = reader.readLine()) != null) {
+				data = line.split(",");
+				currentUsername = data[0];
+				if (input == currentUsername) {
+					return true;
+				}
+				currentPassword = data[1];
+			}
+			reader.close();
 		} else {
-			return true;
+			System.out.println("Erreur dans la lecture du fichier.");
 		}
+		return false;
 	}
 	
 	public static boolean validatePassword(String username, String input) throws Exception {

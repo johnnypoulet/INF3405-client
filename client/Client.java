@@ -48,12 +48,9 @@ public class Client {
 		serverPort = serverPortIn;
 		
 		// Ouverture du socket de communication avec serveur
-		
 		socket = new Socket(serverAddress, serverPort);
 		DataInputStream in = new DataInputStream(socket.getInputStream());
 		DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-		System.out.format("Le serveur roule sur %s:%d%n",serverAddressIn,serverPortIn);
-		
 		
 		// Entrez le nom d'utilisateur
 		System.out.println("Veuillez entrer votre nom d'utilisateur, qu'il soit nouveau ou deja existant. Entre 4 et 20 caracteres.");
@@ -68,11 +65,11 @@ public class Client {
 		// Envoi username au server pour verifier sur le serveur si le nom d'utilisateur existe
 		out.writeUTF(username);
 		// On attend la reponse
-		String responseONE = in.readUTF();
-		if (responseONE == "true") {
-			System.out.format("Rebienvenue %s!", usernameIn);
+		boolean responseONE = in.readBoolean();
+		if (responseONE == true) {
+			System.out.format("Rebienvenue %s! ", usernameIn);
 		} else {
-			System.out.format("Bienvenue dans PolySobel, %s!", usernameIn);
+			System.out.format("Bienvenue dans PolySobel, %s! ", usernameIn);
 		}
 
 		// Entrez le mot de passe
@@ -86,8 +83,8 @@ public class Client {
 		password = passwordIn;
 		
 		
-		/* SCENARIO 1 UTILISATEUR DANS BASE DE DONNÉE*/
-		if(responseONE == "true")
+		/* SCENARIO 1 UTILISATEUR DANS BASE DE DONNï¿½E*/
+		if (responseONE)
 		{
 			out.writeUTF(password);
 			// On attend la rÃ©ponse

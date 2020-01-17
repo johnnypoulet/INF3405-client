@@ -1,5 +1,6 @@
 package server;
 
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -80,9 +81,11 @@ public class Server {
 		{
 			try
 			{
-				DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-				
-				out.writeUTF("Bonjour du serveur - vous etes le client #" + clientNumber + "!");
+				DataInputStream in = new DataInputStream(socket.getInputStream());
+				String usernameIn = in.readUTF();
+				// DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+				// out.writeUTF("Bonjour du serveur - vous etes le client #" + clientNumber + "!");
+				System.out.format("Usager %s s'est connecte", usernameIn);
 			} catch (IOException e)
 			{
 				System.out.println("Erreur dans le traitement demande par le client # " + clientNumber + ": " + e);
