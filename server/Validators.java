@@ -50,7 +50,7 @@ public class Validators {
 	}
 	
 	public static boolean validatePassword(String username, String password) throws Exception {
-		if (credentials.get(username) == password) {
+		if (credentials.get(username).equals(password)) {
 			return true;
 		} else {
 			return false;
@@ -58,9 +58,21 @@ public class Validators {
 	}
 	
 	public static void setPassword(String username, String password) throws Exception {
-		if (credentials.containsKey(username)) {
-			credentials.put(username, password);
-		}
+		// On met a jour la map
+		credentials.put(username, password);
+		// On met a jour le fichier
+		FileWriter writer = new FileWriter(path);
+		credentials.forEach((k, v) -> {
+			try {
+				writer.append(k);
+				writer.append(",");
+				writer.append(v);
+				writer.append("\n");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		});
+		writer.close();
 	}
 	
 	public static void manageFile() throws Exception {

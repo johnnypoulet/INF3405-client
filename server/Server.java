@@ -96,8 +96,7 @@ public class Server {
 				}
 				else
 				{
-					//Validators.setPassword(usernameIn,password);
-				
+					Validators.setPassword(usernameIn,password);
 				}
 				//ByteArrayInputStream s = in.read();
 				// DataOutputStream out = new DataOutputStream(socket.getOutputStream());
