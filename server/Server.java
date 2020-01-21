@@ -32,12 +32,12 @@ public class Server {
 		serverAddress = serverAddressIn;
 		
 		// Entrez le numero de port
-		System.out.println("Entrez le numero du port (entre 5000 et 5050):");
+		System.out.println("Entrez le numero du port (entre 5000 et 5050): ");
 		int serverPortIn = keyboard.nextInt();
 		
 		// Validate le numero de port
 		while (!Validators.validatePortNumber(serverPortIn)) {
-			System.out.println("Entrez le numero du port (entre 5000 et 5050):");
+			System.out.println("Entrez le numero du port (entre 5000 et 5050): ");
 			serverPortIn = keyboard.nextInt();
 		}
 		serverPort = serverPortIn;
@@ -61,6 +61,7 @@ public class Server {
 		}
 		finally
 		{
+			System.out.println("Merci d'avoir utilisé PolySobel. À la prochaine!");
 			listener.close();
 		}
 	}

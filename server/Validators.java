@@ -5,11 +5,11 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class Validators {
 	static String path = "credentials.csv";
-	static String currentUsername = "";
-	static String currentPassword = "";
+	static HashMap<String, String> credentials = new HashMap<String, String>();
 
 	// Valider l'adresse (chiffres et nombre de points)
 	public static boolean validateIPAddress(String[] input) throws Exception {
@@ -40,52 +40,57 @@ public class Validators {
 		return true;
 	}
 	
-	// Remplir la map et créer le fichier si requis
-	public static void initMap() throws Exception {
-		File file = new File(path);
-		// Le fichier existe
-		if (file.exists()) {
-			BufferedReader reader = new BufferedReader(new FileReader(path));
-			String line = "";
-			String[] data;
-			while ((line = reader.readLine()) != null) {
-				data = line.split(",");
-				currentUsername = data[0];
-				currentPassword = data[1];
-			}
-			reader.close();
+	public static boolean validateUsername(String username) throws Exception {
+		if (credentials.containsKey(username)) {
+			return true;
 		} else {
-			System.out.println("Erreur dans la lecture du fichier.");
-		}
-	}
-	
-	public static boolean validateUsername(String input) throws Exception {
-		File file = new File(path);
-		// Le fichier existe
-		if (file.exists()) {
-			BufferedReader reader = new BufferedReader(new FileReader(path));
-			String line = "";
-			String[] data;
-			while ((line = reader.readLine()) != null) {
-				data = line.split(",");
-				currentUsername = data[0];
-				if (input == currentUsername) {
-					return true;
-				}
-				currentPassword = data[1];
-			}
-			reader.close();
-		} else {
-			System.out.println("Erreur dans la lecture du fichier.");
+			credentials.put(username, " ");
 		}
 		return false;
 	}
 	
-	public static boolean validatePassword(String username, String input) throws Exception {
-		if (currentPassword == input) {
+	public static boolean validatePassword(String username, String password) throws Exception {
+		if (credentials.get(username) == password) {
 			return true;
 		} else {
 			return false;
 		}
 	}
+	
+	public static void setPassword(String username, String password) throws Exception {
+		if (credentials.containsKey(username)) {
+			credentials.put(username, password);
+		}
+	}
+	
+	public static void manageFile() throws Exception {
+		File file = new File(path);
+		// Le fichier existe deja
+		if (file.exists()) {
+			BufferedReader reader = new BufferedReader(new FileReader(path));
+			String line = "";
+			String[] data;
+			while ((line = reader.readLine()) != null) {
+				data = line.split(",");
+				credentials.put(data[0], data[1]);
+			}
+			reader.close();
+		// On doit creer le fichier
+		} else {
+			System.out.println("Fichier d'identifiants introuvable. Creation d'un nouveau fichier credentials.csv.");
+			FileWriter writer = new FileWriter(path);
+			credentials.forEach((username, password) -> {
+				try {
+					writer.append(username);
+					writer.append(",");
+					writer.append(password);
+					writer.append("\n");
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			});
+			writer.close();
+		};
+	}
 }
+	

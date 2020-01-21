@@ -102,16 +102,15 @@ public class Client {
 		else
 		{
 			out.writeUTF(password);
-			System.out.format("Nouvel utilisateur enregistre. Merci!");
+			System.out.format("Nouvel utilisateur enregistre. Merci! ");
 		}
-		
 		
 		// Entrez le nom du fichier
 		System.out.println("Veuillez entrer le nom de l'image: ");
 		String fileName = keyboard.next();
 		
 		while(!Validators.validateFileName(fileName)) {
-			
+			// 
 		}
 		
 		// Envoi de la photo
@@ -121,7 +120,7 @@ public class Client {
 		ImageIO.write(buffered,"png",baOut);
 		out.write(baOut.toByteArray());
 		out.flush();
-		System.out.println("Image envoye au serveur");
+		System.out.println("Image envoyee au serveur");
 		// Attente de reception
 				
 		socket.close();
