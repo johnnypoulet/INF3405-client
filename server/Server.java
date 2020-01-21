@@ -1,5 +1,6 @@
 package server;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -82,13 +83,31 @@ public class Server {
 			try
 			{
 				DataInputStream in = new DataInputStream(socket.getInputStream());
+				DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 				String usernameIn = in.readUTF();
+				Boolean userExist = Validators.validateUsername(usernameIn);
+				out.writeBoolean(userExist);
+				String password = in.readUTF();
+				if(userExist)
+				{
+					
+					out.writeBoolean(Validators.validatePassword(usernameIn, password));
+				}
+				else
+				{
+					//Validators.setPassword(usernameIn,password);
+				
+				}
+				//ByteArrayInputStream s = in.read();
 				// DataOutputStream out = new DataOutputStream(socket.getOutputStream());
 				// out.writeUTF("Bonjour du serveur - vous etes le client #" + clientNumber + "!");
 				System.out.format("Usager %s s'est connecte", usernameIn);
 			} catch (IOException e)
 			{
 				System.out.println("Erreur dans le traitement demande par le client # " + clientNumber + ": " + e);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			finally
 			{
