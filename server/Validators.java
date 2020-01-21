@@ -50,7 +50,7 @@ public class Validators {
 	}
 	
 	public static boolean validatePassword(String username, String password) throws Exception {
-		if (credentials.get(username) == password) {
+		if (credentials.get(username).equals(password)) {
 			return true;
 		} else {
 			return false;
