@@ -1,14 +1,18 @@
 package server;
 
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
+
+import javax.imageio.ImageIO;
 
 public class Server {
 	private static ServerSocket listener;
@@ -51,6 +55,8 @@ public class Server {
 		
 		listener.bind(new InetSocketAddress(serverIP, serverPort));
 		
+		
+		Validators.manageFile();
 		System.out.format("Le serveur fonctionne sur %s:%d%n", serverAddress, serverPort);
 		
 		try
@@ -91,17 +97,21 @@ public class Server {
 				String password = in.readUTF();
 				if(userExist)
 				{
-					
 					out.writeBoolean(Validators.validatePassword(usernameIn, password));
 				}
 				else
 				{
 					Validators.setPassword(usernameIn,password);
+				
 				}
-				//ByteArrayInputStream s = in.read();
-				// DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-				// out.writeUTF("Bonjour du serveur - vous etes le client #" + clientNumber + "!");
 				System.out.format("Usager %s s'est connecte", usernameIn);
+				
+				byte[] inputImage= in.readAllBytes();
+				InputStream inp = new ByteArrayInputStream(inputImage);
+				BufferedImage imageConverted = ImageIO.read(inp);
+				Sobel.process(imageConverted);
+				
+				
 			} catch (IOException e)
 			{
 				System.out.println("Erreur dans le traitement demande par le client # " + clientNumber + ": " + e);
