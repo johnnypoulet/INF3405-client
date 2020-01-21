@@ -66,7 +66,7 @@ public class Client {
 		out.writeUTF(username);
 		// On attend la reponse
 		boolean responseONE = in.readBoolean();
-		if (responseONE) {
+		if (responseONE == true) {
 			System.out.format("Rebienvenue %s! ", usernameIn);
 		} else {
 			System.out.format("Bienvenue dans PolySobel, %s! ", usernameIn);
@@ -82,13 +82,14 @@ public class Client {
 		// Le mot de passe est valide
 		password = passwordIn;
 		
-		// SCENARIO 1 UTILISATEUR DANS BASE DE DONN�E
+		
+		/* SCENARIO 1 UTILISATEUR DANS BASE DE DONN�E*/
 		if (responseONE)
 		{
 			out.writeUTF(password);
-			// On attend la reponse
-			boolean responsePW = in.readBoolean();
-			if (responsePW) {
+			// On attend la réponse
+			String responsePW = in.readUTF();
+			if (responsePW == "true") {
 				System.out.format("Utilisateur identifie. Merci!");
 			} else {
 				System.out.format("Mot de passe refuse (ou erreur au serveur).");
@@ -97,7 +98,7 @@ public class Client {
 				System.exit(0);
 			}			
 		}
-		// SCENARIO 2 NOUVEL UTILISATEUR
+		/* SCENARIO 2 NOUVEL UTILISATEUR */
 		else
 		{
 			out.writeUTF(password);
@@ -108,8 +109,7 @@ public class Client {
 		System.out.println("Veuillez entrer le nom de l'image: ");
 		String fileName = keyboard.next();
 		
-		/*
-		while(!Validators.validateFileName(fileName)) {
+		/*while(!Validators.validateFileName(fileName)) {
 			// 
 		}*/
 		
@@ -122,7 +122,7 @@ public class Client {
 		out.flush();
 		System.out.println("Image envoyee au serveur");
 		// Attente de reception
-
+				
 		socket.close();
 		keyboard.close();
 	}

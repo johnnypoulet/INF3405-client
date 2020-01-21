@@ -1,9 +1,12 @@
 package server;
 
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
@@ -106,11 +109,22 @@ public class Server {
 				}
 				System.out.format("Usager %s s'est connecte", usernameIn);
 				
+				System.out.println("Reception d'image");
 				byte[] inputImage= in.readAllBytes();
+				
+				System.out.println("Image en traitement");
+				
 				InputStream inp = new ByteArrayInputStream(inputImage);
 				BufferedImage imageConverted = ImageIO.read(inp);
-				Sobel.process(imageConverted);
+				BufferedImage processedImaged = Sobel.process(imageConverted);
 				
+				//Image image = ImageIO.read(new File(fileName));
+				//BufferedImage buffered = (BufferedImage) image;
+				ByteArrayOutputStream baOut= new ByteArrayOutputStream();
+				ImageIO.write(processedImaged,"png",baOut);
+				out.write(baOut.toByteArray());
+				out.flush();
+				System.out.println("Image transforme envoyer au client");
 				
 			} catch (IOException e)
 			{
