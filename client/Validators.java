@@ -51,13 +51,12 @@ public class Validators {
     }
     
     // Valider le format du nom de fichier
-    // TODO: ajouter validations pour extensions accepttees
     public static boolean validateFileName(String input) throws Exception {
     	String[] temp = input.split("\\.");
-    	if (temp.length != 3) {
-    		return false;
-    	} else {
+    	if (temp.length == 2 && temp[1].equalsIgnoreCase("png")) {
     		return true;
+    	} else {
+    		return false;
     	}
     }
 } 
