@@ -83,11 +83,11 @@ public class Client {
 		password = passwordIn;
 		
 		
-		/* SCENARIO 1 UTILISATEUR DANS BASE DE DONN�E*/
+		/* SCENARIO 1 UTILISATEUR DANS BASE DE DONN???E*/
 		if (responseONE)
 		{
 			out.writeUTF(password);
-			// On attend la réponse
+			// On attend la r??ponse
 			String responsePW = in.readUTF();
 			if (responsePW == "true") {
 				System.out.format("Utilisateur identifie. Merci!");

@@ -30,7 +30,7 @@ public class Validators {
 		return true;
     }
 
-    // Valider nom d'utilisateur (entre 4 et 20 caractères)
+    // Valider nom d'utilisateur (entre 4 et 20 caract??res)
     public static boolean validateUsername(String username) throws Exception {
 		if (username.length() < 4 || username.length() > 20) {
             System.out.println("Erreur dans le nom d'utilisateur. Veuillez reessayer.");
@@ -40,7 +40,7 @@ public class Validators {
 		}
     }
 
-    // Valider le mot de passe (entre 4 et 20 caractères)
+    // Valider le mot de passe (entre 4 et 20 caract??res)
     public static boolean validatePassword(String password) throws Exception {
         if (password.length() < 4 || password.length() > 20) {
             System.out.println("Erreur dans le mot de passe. Veuillez reessayer.");
