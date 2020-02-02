@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.Scanner;
 
 import javax.imageio.ImageIO;
 
@@ -60,7 +59,7 @@ public class Client {
 			password = Login.passwordConnection();
 			out.writeUTF(password);
 		}
-		fileName = Login.fileName();
+		fileName = Transfer.fileNameIn();
 		
 		// Transformation du fichier en BufferedImage
 		try {
@@ -79,25 +78,43 @@ public class Client {
 			System.out.println("Image envoyee au serveur. Attente de la reponse...");
 		} catch (Exception e) {
 			System.out.println("Erreur dans la lecture du fichier.");
-			fileName = Login.fileName();
+			fileName = Transfer.fileNameIn();
 		}
 
 		// Attente de reception
 		int lenMod = in.readInt();
-		System.out.format("Taille de l'image en reception: %s. Reception de l'image en cours...\n", lenMod);
+		System.out.format("Taille de l'image en reception: %s octets. Reception de l'image en cours...\n", lenMod);
 		byte[] inputBytes = in.readNBytes(lenMod);
-		System.out.println("Image recue. Sauvegarde en cours...");
+		System.out.println("Image recue.");
 		InputStream inp = new ByteArrayInputStream(inputBytes);
 		BufferedImage imageConverted = ImageIO.read(inp);
 		
+		// On ecrit l'image recue dans un fichier
 		try {
-			File file = new File("test.png");
-			ImageIO.write(imageConverted, "png", file);
+			String pathOut = Transfer.fileNameOut();
+			String[] temp = pathOut.split("\\.");
+			File file = new File(pathOut);
+			if (file.exists()) {
+				boolean tempResponse = Transfer.fileNameOverwrite();
+				// On ecrase
+				if (tempResponse) {
+					System.out.println("Ecrasement du fichier: " + file.toString());
+					ImageIO.write(imageConverted, temp[1], file);
+				} else {
+					pathOut = Transfer.fileNameOut();
+					temp = pathOut.split("\\.");
+				}
+			}
+			ImageIO.write(imageConverted, temp[1], file);
 		} catch (Exception e) {
-			// Ketchose
+			System.out.println("Erreur dans l'ecriture du fichier. Sortie...");
+			Login.close();
+			socket.close();
+			System.exit(1);
 		}
 		
 		Login.close();
 		socket.close();
 	}
 }
+

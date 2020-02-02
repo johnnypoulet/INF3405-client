@@ -60,17 +60,4 @@ public class Login {
 		// Le mot de passe est valide
 		return passwordIn;
 	}
-	
-	public static String fileName() throws Exception {
-		// Entrez le nom du fichier
-		System.out.println("Veuillez entrer le nom de l'image: ");
-		String fileName = keyboard.next();
-		
-		while(!Validators.validateFileName(fileName)) {
-		    System.out.println("Erreur dans le nom du fichier.");
-			System.out.println("Veuillez entrer le nom de l'image: ");
-			fileName = keyboard.next();
-		}
-		return fileName;
-	}
 }

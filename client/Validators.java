@@ -53,10 +53,22 @@ public class Validators {
     // Valider le format du nom de fichier
     public static boolean validateFileName(String input) throws Exception {
     	String[] temp = input.split("\\.");
-    	if (temp.length == 2 && temp[1].equalsIgnoreCase("png")) {
+    	if (temp.length == 2 && (temp[1].equalsIgnoreCase("png") || temp[1].equalsIgnoreCase("jpg") || temp[1].equalsIgnoreCase("bmp"))) {
     		return true;
     	} else {
     		return false;
     	}
+    }
+    
+    // Renvoie 0 si la reponse est invalide, 1 si Oui, 2 si Non
+    public static int validateResponse(String input, String message) throws Exception {
+		if (input.equalsIgnoreCase("oui")) {
+			return 1;
+		} else if (input.equalsIgnoreCase("non")) {
+			return 2;
+		} else {
+			System.out.println(message);
+			return 0;
+		}
     }
 } 
