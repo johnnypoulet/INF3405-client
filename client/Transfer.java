@@ -1,23 +1,94 @@
 package client;
 
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.util.Scanner;
+
+import javax.imageio.ImageIO;
 
 public class Transfer {
 	static Scanner keyboard = new Scanner(System.in);
+	static String fileName = "";
+	static BufferedImage imageConverted;
 	
 	public static void close() throws Exception {
 		keyboard.close();
 	}
 	
+	public static boolean startRoutine() throws Exception {
+		fileName = Transfer.fileNameIn();
+		// Transformation du fichier en BufferedImage
+		try {
+			Image image = ImageIO.read(new File(Transfer.fileName));
+			BufferedImage buffered = (BufferedImage) image;
+			ByteArrayOutputStream baOut= new ByteArrayOutputStream();
+			ImageIO.write(buffered, "png", baOut);
+
+			// Envoi de la taille de l'image
+			byte[] len = ByteBuffer.allocate(4).putInt(baOut.size()).array();
+			Login.out.write(len);
+			
+			// Envoi de l'image
+			Login.out.write(baOut.toByteArray());
+			Login.out.flush();
+			System.out.println("Image envoyee au serveur. Attente de la reponse...");
+			
+			// Attente de reception
+			int lenMod = Login.in.readInt();
+			System.out.format("Taille de l'image en reception: %s octets. Reception de l'image en cours...\n", lenMod);
+			byte[] inputBytes = Login.in.readNBytes(lenMod);
+			System.out.println("Image recue.");
+			InputStream inp = new ByteArrayInputStream(inputBytes);
+			imageConverted = ImageIO.read(inp);
+			
+			return true;
+		} catch (Exception e) {
+			System.out.println("Erreur dans la lecture du fichier. Assurez-vous de placer le fichier dans le repertoire courant.");
+			return false;
+		}
+	}
+	
+	public static boolean startPostRoutine() throws Exception {
+		// On ecrit l'image recue dans un fichier
+		try {
+			String pathOut = Transfer.fileNameOut();
+			String[] temp = pathOut.split("\\.");
+			File file = new File(pathOut);
+			if (file.exists()) {
+				boolean tempResponse = Transfer.fileNameOverwrite();
+				// On ecrase
+				if (tempResponse) {
+					System.out.println("Ecrasement du fichier: " + file.toString());
+					ImageIO.write(imageConverted, temp[1], file);
+				} else {
+					pathOut = Transfer.fileNameOut();
+					temp = pathOut.split("\\.");
+				}
+			}
+			ImageIO.write(imageConverted, temp[1], file);
+			return true;
+		} catch (Exception e) {
+			System.out.println("Erreur dans l'ecriture du fichier.");
+			Login.close();
+			return false;
+		}
+	}
+	
 	public static String fileNameIn() throws Exception {
 		// Entrez le nom du fichier
-		System.out.println("L'image doit se trouver dans le repertoire suivant (ou un sous-repertoire si vous l'incluez dans le nom du fichier): " + System.getProperty("user.dir"));
-		System.out.println("Cette application supporte les formats JPG, PNG et BMP. Veuillez entrer le nom de l'image que vous voulez traiter: ");
+		System.out.println("L'image doit se trouver dans le repertoire suivant (ou un sous-repertoire si vous l'incluez dans le nom du fichier):");
+		System.out.println(System.getProperty("user.dir"));
+		System.out.println("Cette application supporte les formats JPG, PNG et BMP. Veuillez entrer le nom de l'image que vous voulez traiter:");
 		String fileName = keyboard.next();
 		
 		while(!Validators.validateFileName(fileName)) {
 		    System.out.println("Erreur dans le nom du fichier.");
-			System.out.println("Cette application supporte les formats JPG, PNG et BMP. Veuillez entrer le nom de l'image que vous voulez traiter: ");
+			System.out.println("Cette application supporte les formats JPG, PNG et BMP. Veuillez entrer le nom de l'image que vous voulez traiter:");
 			fileName = keyboard.next();
 		}
 		return fileName;
@@ -25,7 +96,8 @@ public class Transfer {
 	
 	public static String fileNameOut() throws Exception {
 		// Entrez le nom du fichier
-		System.out.println("L'image sera sauvegardee dans le repertoire suivant (ou un sous-repertoire si vous l'incluez dans le nom du fichier): " + System.getProperty("user.dir"));
+		System.out.println("L'image sera sauvegardee dans le repertoire suivant (ou un sous-repertoire si vous l'incluez dans le nom du fichier): ");
+		System.out.println(System.getProperty("user.dir"));
 		System.out.println("Cette application supporte les formats JPG, PNG et BMP. Veuillez entrer le nom du fichier que vous voulez sauvegarder: ");
 		String fileName = keyboard.next();
 		
