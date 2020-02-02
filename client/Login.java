@@ -16,26 +16,20 @@ public class Login {
 	static DataOutputStream out;
 	
 	public static void close() throws Exception {
-		keyboard.close();
 		socket.close();
+		keyboard.close();
 	}
 	
 	public static boolean startConnectionRoutine() throws Exception {
 		try {
+			// Obtention des informations serveur
 			serverAddress = serverConnection();
 			serverPort = portConnection();
 			socket = new Socket(Login.serverAddress, Login.serverPort);
 			in = new DataInputStream(socket.getInputStream());
 			out = new DataOutputStream(socket.getOutputStream());
-			return true;
-		} catch (Exception e) {
-			System.out.println("La connexion n'a pas pu etre etablie.");
-			return false;
-		}
-	}
-	
-	public static boolean startUserRoutine() throws Exception {
-		try {
+			
+			// Obtention des credentials
 			username = usernameConnection();
 			password = passwordConnection();
 			
@@ -54,7 +48,6 @@ public class Login {
 					return true;
 				} else {
 					System.out.println("Mot de passe refuse (ou erreur au serveur).");
-					Login.close();
 					return false;
 				}
 			// Nouvel utilisateur
@@ -67,13 +60,11 @@ public class Login {
 					return true;
 				} else {
 					System.out.println("Erreur lors de la connexion. Le serveur a refuse le mot de passe.");
-					Login.close();
 					return false;
 				}
 			}
 		} catch (Exception e) {
-			System.out.println("Erreur durant la connexion de l'utilisateur.");
-			Login.close();
+			System.out.println("La connexion n'a pas pu etre etablie.");
 			return false;
 		}
 	}

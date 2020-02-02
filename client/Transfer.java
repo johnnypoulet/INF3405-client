@@ -33,6 +33,9 @@ public class Transfer {
 			byte[] len = ByteBuffer.allocate(4).putInt(baOut.size()).array();
 			Login.out.write(len);
 			
+			// Envoi du nom de l'image
+			Login.out.writeUTF(fileName);
+			
 			// Envoi de l'image
 			Login.out.write(baOut.toByteArray());
 			Login.out.flush();
