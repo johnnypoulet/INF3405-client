@@ -15,12 +15,14 @@ public class Transfer {
 	static Scanner keyboard = new Scanner(System.in);
 	static String fileName = "";
 	static BufferedImage imageConverted;
+	static boolean startSuccessful = false;
+	static boolean startPostSuccesful = false;
 	
 	public static void close() throws Exception {
 		keyboard.close();
 	}
 	
-	public static boolean startRoutine() throws Exception {
+	public static void startRoutine() throws Exception {
 		fileName = Transfer.fileNameIn();
 		// Transformation du fichier en BufferedImage
 		try {
@@ -49,14 +51,16 @@ public class Transfer {
 			InputStream inp = new ByteArrayInputStream(inputBytes);
 			imageConverted = ImageIO.read(inp);
 			
-			return true;
+			startSuccessful = true;
+			return;
 		} catch (Exception e) {
 			System.out.println("Erreur dans la lecture du fichier. Assurez-vous de placer le fichier dans le repertoire courant.");
-			return false;
+			startSuccessful = false;
+			return;
 		}
 	}
 	
-	public static boolean startPostRoutine() throws Exception {
+	public static void startPostRoutine() throws Exception {
 		// On ecrit l'image recue dans un fichier
 		try {
 			String pathOut = Transfer.fileNameOut();
@@ -74,40 +78,52 @@ public class Transfer {
 				}
 			}
 			ImageIO.write(imageConverted, temp[1], file);
-			return true;
+			startPostSuccesful = true;
+			return;
 		} catch (Exception e) {
 			System.out.println("Erreur dans l'ecriture du fichier.");
 			Login.close();
-			return false;
+			startPostSuccesful = false;
+			return;
 		}
 	}
 	
-	public static String fileNameIn() throws Exception {
+	public static String fileNameIn() {
 		// Entrez le nom du fichier
 		System.out.println("L'image doit se trouver dans le repertoire suivant (ou un sous-repertoire si vous l'incluez dans le nom du fichier):");
 		System.out.println(System.getProperty("user.dir"));
 		System.out.println("Cette application supporte les formats JPG, PNG et BMP. Veuillez entrer le nom de l'image que vous voulez traiter:");
 		String fileName = keyboard.next();
 		
-		while(!Validators.validateFileName(fileName)) {
-		    System.out.println("Erreur dans le nom du fichier.");
-			System.out.println("Cette application supporte les formats JPG, PNG et BMP. Veuillez entrer le nom de l'image que vous voulez traiter:");
-			fileName = keyboard.next();
+		try {
+			while(!Validators.validateFileName(fileName)) {
+			    System.out.println("Erreur dans le nom du fichier.");
+				System.out.println("Cette application supporte les formats JPG, PNG et BMP. Veuillez entrer le nom de l'image que vous voulez traiter:");
+				fileName = keyboard.next();
+			}
+		} catch (Exception e) {
+			System.out.println("apres exception filenameIn");
+			e.printStackTrace();
 		}
 		return fileName;
 	}
 	
-	public static String fileNameOut() throws Exception {
+	public static String fileNameOut() {
 		// Entrez le nom du fichier
 		System.out.println("L'image sera sauvegardee dans le repertoire suivant (ou un sous-repertoire si vous l'incluez dans le nom du fichier): ");
 		System.out.println(System.getProperty("user.dir"));
 		System.out.println("Cette application supporte les formats JPG, PNG et BMP. Veuillez entrer le nom du fichier que vous voulez sauvegarder: ");
 		String fileName = keyboard.next();
 		
-		while(!Validators.validateFileName(fileName)) {
-		    System.out.println("Erreur dans le nom du fichier.");
-			System.out.println("Cette application supporte les formats JPG, PNG et BMP. Veuillez entrer le nom du fichier que vous voulez sauvegarder: ");
-			fileName = keyboard.next();
+		try {
+			while(!Validators.validateFileName(fileName)) {
+			    System.out.println("Erreur dans le nom du fichier.");
+				System.out.println("Cette application supporte les formats JPG, PNG et BMP. Veuillez entrer le nom du fichier que vous voulez sauvegarder: ");
+				fileName = keyboard.next();
+			}
+		} catch (Exception e) {
+			System.out.println("apres exception filenameOut");
+			e.printStackTrace();
 		}
 		return fileName;
 	}

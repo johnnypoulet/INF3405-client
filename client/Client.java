@@ -5,14 +5,14 @@ public class Client {
 	{
 		System.out.println("Bienvenue dans l'application PolySobel - Client! (Copyright Derek Bernard & Jean-Olivier Dalphond 2020)");
 
-		while (!Login.startConnectionRoutine()) {
+		while (!Login.startSuccessful) {
 			Login.startConnectionRoutine();
 		}
-		
-		while (!Transfer.startRoutine()) {
+
+		while (!Transfer.startSuccessful) {
 			Transfer.startRoutine();
 		}
-		while (!Transfer.startPostRoutine()) {
+		while (!Transfer.startPostSuccesful) {
 			Transfer.startPostRoutine();
 		}
 		
