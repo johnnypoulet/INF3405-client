@@ -30,7 +30,7 @@ public class Login {
 		
 		try {
 			socket = new Socket();
-			socket.connect(new InetSocketAddress(Login.serverAddress, Login.serverPort), 1000);
+			socket.connect(new InetSocketAddress(Login.serverAddress, Login.serverPort), 2000);
 			in = new DataInputStream(socket.getInputStream());
 			out = new DataOutputStream(socket.getOutputStream());
 		} catch (IOException ioe) {
@@ -52,7 +52,7 @@ public class Login {
 		// On attend la reponse du serveur pour savoir si l'utilisateur existe
 		// Utilisateur existant
 		if (Login.in.readBoolean()) {
-			System.out.format("Rebienvenue, utilisateur existant %s! ", Login.username);
+			System.out.format("Rebienvenue, utilisateur existant %s!\n", Login.username);
 			out.writeUTF(Login.password);
 			
 			// On attend la reponse
@@ -61,7 +61,7 @@ public class Login {
 				startSuccessful = true;
 				return;
 			} else {
-				System.out.println("Mot de passe refuse (ou erreur au serveur).");
+				System.out.println("Mot de passe refuse (ou erreur au serveur). Deconnexion...");
 				startSuccessful = false;
 				return;
 			}
@@ -99,14 +99,15 @@ public class Login {
 	public static int portConnection() throws Exception {
 		// Entrez le numero de port
 		System.out.println("Entrez le numero du port du serveur (entre 5000 et 5050):");
-		int serverPortIn = keyboard.nextInt();
+		String serverPortIn = "";
+		serverPortIn = keyboard.next();
 		
 		while (!Validators.validatePortNumber(serverPortIn)) {
 			System.out.println("Entrez le numero du port du serveur (entre 5000 et 5050):");
-			serverPortIn = keyboard.nextInt();
+			serverPortIn = keyboard.next();
 		}
 		// Le numero de port est valide
-		return serverPortIn;
+		return Integer.parseInt(serverPortIn);
 	}
 	
 	public static String usernameConnection() throws Exception {
