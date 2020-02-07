@@ -22,12 +22,19 @@ public class Validators {
 	}
 	
 	// Valider le numero de port
-	public static boolean validatePortNumber(int input) throws Exception {
-		if (input < 5000 || input > 5050) {
+	public static boolean validatePortNumber(String input) throws Exception {
+		try {
+			int temp = Integer.parseInt(input);
+			if (!(temp < 5000 || temp > 5050)) {
+				return true;
+			} else {
+				System.out.println("Erreur dans le numero de port. Veuillez reessayer.");
+				return false;
+			}
+		} catch (NumberFormatException e) {
 			System.out.println("Erreur dans le numero de port. Veuillez reessayer.");
 			return false;
 		}
-		return true;
     }
 
     // Valider nom d'utilisateur (entre 4 et 20 caract??res)
@@ -52,12 +59,27 @@ public class Validators {
     
     // Valider le format du nom de fichier
     public static boolean validateFileName(String input) throws Exception {
+    	// On doit d'abord verifier s'il y a un path relatif ou des caracteres non permis
+    	if (input.contains("/") || input.contains("\\") || input.contains(" ") || input.contains("\\.") || input.contains("<") ||
+    			input.contains(">") || input.contains(":") || input.contains("|") || input.contains("?") || input.contains("*")) {
+    		return false;
+    	}
+    	// On verifie si le nom correspond aux formats supportes
     	String[] temp = input.split("\\.");
     	if (temp.length == 2 && (temp[1].equalsIgnoreCase("png") || temp[1].equalsIgnoreCase("jpg") || temp[1].equalsIgnoreCase("bmp"))) {
     		return true;
     	} else {
     		return false;
     	}
+    }
+    
+    public static boolean validateFileNameToSave(String input) throws Exception {
+    	// On doit d'abord verifier s'il y a un path relatif ou des caracteres non permis
+    	if (input.contains("/") || input.contains("\\") || input.contains(" ") || input.contains("\\.") || input.contains("<") ||
+    			input.contains(">") || input.contains(":") || input.contains("|") || input.contains("?") || input.contains("*")) {
+    		return false;
+    	}
+    	return true;
     }
     
     // Renvoie 0 si la reponse est invalide, 1 si Oui, 2 si Non

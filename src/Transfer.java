@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Scanner;
@@ -13,7 +14,9 @@ import javax.imageio.ImageIO;
 
 public class Transfer {
 	static Scanner keyboard = new Scanner(System.in);
-	static String fileName = "";
+	static String filePathIn = "";
+	static String filePathOut = "";
+	static String formatIn = "";
 	static BufferedImage imageConverted;
 	static boolean startSuccessful = false;
 	static boolean startPostSuccesful = false;
@@ -23,20 +26,24 @@ public class Transfer {
 	}
 	
 	public static void startRoutine() throws Exception {
-		fileName = Transfer.fileNameIn();
-		// Transformation du fichier en BufferedImage
 		try {
-			Image image = ImageIO.read(new File(Transfer.fileName));
+			// Obtention du nom du fichier
+			Transfer.fileNameIn();
+			
+			// Transformation du fichier en BufferedImage
+			System.out.println("Lecture de l'image...");
+			Image image = ImageIO.read(new File(Transfer.filePathIn));
 			BufferedImage buffered = (BufferedImage) image;
 			ByteArrayOutputStream baOut= new ByteArrayOutputStream();
 			ImageIO.write(buffered, "png", baOut);
+			System.out.println("Lecture terminee. Transmission vers le serveur...");
 
 			// Envoi de la taille de l'image
 			byte[] len = ByteBuffer.allocate(4).putInt(baOut.size()).array();
 			Login.out.write(len);
 			
 			// Envoi du nom de l'image
-			Login.out.writeUTF(fileName);
+			Login.out.writeUTF(filePathIn);
 			
 			// Envoi de l'image
 			Login.out.write(baOut.toByteArray());
@@ -47,10 +54,11 @@ public class Transfer {
 			int lenMod = Login.in.readInt();
 			System.out.format("Taille de l'image en reception: %s octets. Reception de l'image en cours...\n", lenMod);
 			byte[] inputBytes = Login.in.readNBytes(lenMod);
-			System.out.println("Image recue.");
+			System.out.println("Image recue au format: " + formatIn + "Deconnexion du serveur...");
 			InputStream inp = new ByteArrayInputStream(inputBytes);
 			imageConverted = ImageIO.read(inp);
 			
+			// Routine terminee
 			startSuccessful = true;
 			return;
 		} catch (Exception e) {
@@ -62,74 +70,77 @@ public class Transfer {
 	
 	public static void startPostRoutine() throws Exception {
 		// On ecrit l'image recue dans un fichier
-		try {
-			String pathOut = Transfer.fileNameOut();
-			String[] temp = pathOut.split("\\.");
-			File file = new File(pathOut);
-			if (file.exists()) {
-				boolean tempResponse = Transfer.fileNameOverwrite();
-				// On ecrase
-				if (tempResponse) {
-					System.out.println("Ecrasement du fichier: " + file.toString());
-					ImageIO.write(imageConverted, temp[1], file);
-				} else {
-					pathOut = Transfer.fileNameOut();
-					temp = pathOut.split("\\.");
-				}
+		Transfer.fileNameOut();
+		File file = new File(filePathOut);
+		while (file.exists()) {
+			boolean tempResponse = Transfer.fileNameOverwrite();
+			// On ecrase
+			if (tempResponse) {
+				System.out.println("Ecrasement du fichier: " + file.toString());
+				file.delete();
+				file = new File(filePathOut);
+				break;
+			} else {
+				Transfer.fileNameOut();
+				file = new File(filePathOut);
 			}
-			ImageIO.write(imageConverted, temp[1], file);
+		}
+		try {
+			// On ecrit la nouvelle image dans le fichier
+			ImageIO.write(imageConverted, formatIn, file);
 			startPostSuccesful = true;
-			return;
-		} catch (Exception e) {
+		} catch (IOException e) {
 			System.out.println("Erreur dans l'ecriture du fichier.");
 			Login.close();
 			startPostSuccesful = false;
-			return;
 		}
 	}
 	
-	public static String fileNameIn() {
+	public static void fileNameIn() throws Exception {
 		// Entrez le nom du fichier
-		System.out.println("L'image doit se trouver dans le repertoire suivant (ou un sous-repertoire si vous l'incluez dans le nom du fichier):");
+		System.out.println("L'image doit se trouver dans le repertoire suivant:");
 		System.out.println(System.getProperty("user.dir"));
 		System.out.println("Cette application supporte les formats JPG, PNG et BMP. Veuillez entrer le nom de l'image que vous voulez traiter:");
-		String fileName = keyboard.next();
+		String fileNameInput = keyboard.next();
 		
 		try {
-			while(!Validators.validateFileName(fileName)) {
+			while(!Validators.validateFileName(fileNameInput)) {
 			    System.out.println("Erreur dans le nom du fichier.");
 				System.out.println("Cette application supporte les formats JPG, PNG et BMP. Veuillez entrer le nom de l'image que vous voulez traiter:");
-				fileName = keyboard.next();
+				fileNameInput = keyboard.next();
 			}
 		} catch (Exception e) {
-			System.out.println("apres exception filenameIn");
+			System.out.println("Erreur durant l'obtention de l'entree clavier.");
 			e.printStackTrace();
 		}
-		return fileName;
+		String temp[] = fileNameInput.split("\\.");
+		filePathIn = fileNameInput;
+		formatIn = temp[1];
 	}
 	
-	public static String fileNameOut() {
+	public static void fileNameOut() throws Exception {
 		// Entrez le nom du fichier
-		System.out.println("L'image sera sauvegardee dans le repertoire suivant (ou un sous-repertoire si vous l'incluez dans le nom du fichier): ");
+		System.out.format("L'image sera sauvegardee au format %s dans le repertoire suivant:\n", formatIn);
 		System.out.println(System.getProperty("user.dir"));
-		System.out.println("Cette application supporte les formats JPG, PNG et BMP. Veuillez entrer le nom du fichier que vous voulez sauvegarder: ");
-		String fileName = keyboard.next();
+		System.out.println("Veuillez entrer le nom du fichier que vous voulez sauvegarder, sans l'extension:");
+		String filePathInput = keyboard.next();
 		
 		try {
-			while(!Validators.validateFileName(fileName)) {
+			while(!Validators.validateFileNameToSave(filePathInput)) {
 			    System.out.println("Erreur dans le nom du fichier.");
-				System.out.println("Cette application supporte les formats JPG, PNG et BMP. Veuillez entrer le nom du fichier que vous voulez sauvegarder: ");
-				fileName = keyboard.next();
+				System.out.println("Veuillez entrer le nom du fichier que vous voulez sauvegarder, sans l'extension:");
+				filePathInput = keyboard.next();
 			}
 		} catch (Exception e) {
-			System.out.println("apres exception filenameOut");
+			System.out.println("Erreur durant l'obtention de l'entree clavier.");
 			e.printStackTrace();
 		}
-		return fileName;
+		filePathOut = filePathInput + "." + formatIn;
 	}
 	
 	public static boolean fileNameOverwrite() throws Exception {
 		String message = "Fichier deja existant. Ecraser? Entrez Oui ou Non.";
+		System.out.println(message);
 		String response = keyboard.next();
 		int result = Validators.validateResponse(response, message);
 		while (result == 0) {

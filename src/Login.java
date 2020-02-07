@@ -2,6 +2,8 @@ package client;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Scanner;
 
@@ -11,7 +13,7 @@ public class Login {
 	static int serverPort = 0;
 	static String username = "";
 	static String password = "";
-	private static Socket socket;
+	private static Socket socket = new Socket();
 	static DataInputStream in;
 	static DataOutputStream out;
 	static boolean startSuccessful = false;
@@ -22,53 +24,60 @@ public class Login {
 	}
 	
 	public static void startConnectionRoutine() throws Exception {
+		// Obtention des informations serveur
+		serverAddress = serverConnection();
+		serverPort = portConnection();
+		
 		try {
-			// Obtention des informations serveur
-			serverAddress = serverConnection();
-			serverPort = portConnection();
-			socket = new Socket(Login.serverAddress, Login.serverPort);
+			socket = new Socket();
+			socket.connect(new InetSocketAddress(Login.serverAddress, Login.serverPort), 2000);
 			in = new DataInputStream(socket.getInputStream());
 			out = new DataOutputStream(socket.getOutputStream());
-			
-			// Obtention des credentials
-			username = usernameConnection();
-			password = passwordConnection();
-			
-			// Envoi username au serveur pour verifier si le nom d'utilisateur existe
-			out.writeUTF(Login.username);
-			
-			// On attend la reponse du serveur pour savoir si l'utilisateur existe
-			// Utilisateur existant
-			if (Login.in.readBoolean()) {
-				System.out.format("Rebienvenue, utilisateur existant %s! ", Login.username);
-				out.writeUTF(Login.password);
-				
-				// On attend la reponse
-				if (in.readBoolean()) {
-					System.out.println("Utilisateur identifie. Merci!");
-					startSuccessful = true;
-				} else {
-					System.out.println("Mot de passe refuse (ou erreur au serveur).");
-					startSuccessful = false;
-				}
-			// Nouvel utilisateur
-			} else {
-				System.out.format("Nouvel utilisateur %s. \n", Login.username);
-				out.writeUTF(Login.password);
-				System.out.println("après write");
-				
-				// On attend la reponse
-				if (in.readBoolean()) {
-					System.out.println("dans if avant return");
-					startSuccessful = true;
-				} else {
-					System.out.println("Erreur lors de la connexion. Le serveur a refuse le mot de passe.");
-					startSuccessful = false;
-				}
-			}
-		} catch (Exception e) {
-			System.out.println("La connexion n'a pas pu etre etablie.");
+		} catch (IOException ioe) {
+			System.out.println("La connexion n'a pu etre etablie: " + ioe.toString());
 			startSuccessful = false;
+			return;
+		} catch (Exception e) {
+			System.out.println("La connexion n'a pas pu etre etablie: " + e.toString());
+			startSuccessful = false;
+			return;
+		}
+		// Obtention des credentials
+		username = usernameConnection();
+		password = passwordConnection();
+		
+		// Envoi username au serveur pour verifier si le nom d'utilisateur existe
+		out.writeUTF(Login.username);
+		
+		// On attend la reponse du serveur pour savoir si l'utilisateur existe
+		// Utilisateur existant
+		if (Login.in.readBoolean()) {
+			System.out.format("Rebienvenue, utilisateur existant %s!\n", Login.username);
+			out.writeUTF(Login.password);
+			
+			// On attend la reponse
+			if (in.readBoolean()) {
+				System.out.println("Utilisateur identifie. Merci!");
+				startSuccessful = true;
+				return;
+			} else {
+				System.out.println("Mot de passe refuse (ou erreur au serveur). Deconnexion...");
+				startSuccessful = false;
+				return;
+			}
+		// Nouvel utilisateur
+		} else {
+			System.out.format("Nouvel utilisateur %s. \n", Login.username);
+			out.writeUTF(Login.password);
+			
+			// On attend la reponse
+			if (in.readBoolean()) {
+				startSuccessful = true;
+				return;
+			} else {
+				System.out.println("Erreur lors de la connexion. Le serveur a refuse le mot de passe.");
+				startSuccessful = false;
+			}
 		}
 	}
 	
@@ -90,14 +99,15 @@ public class Login {
 	public static int portConnection() throws Exception {
 		// Entrez le numero de port
 		System.out.println("Entrez le numero du port du serveur (entre 5000 et 5050):");
-		int serverPortIn = keyboard.nextInt();
+		String serverPortIn = "";
+		serverPortIn = keyboard.next();
 		
 		while (!Validators.validatePortNumber(serverPortIn)) {
 			System.out.println("Entrez le numero du port du serveur (entre 5000 et 5050):");
-			serverPortIn = keyboard.nextInt();
+			serverPortIn = keyboard.next();
 		}
 		// Le numero de port est valide
-		return serverPortIn;
+		return Integer.parseInt(serverPortIn);
 	}
 	
 	public static String usernameConnection() throws Exception {
